@@ -1,0 +1,73 @@
+#---------------------------------------------------------------------
+# Impide navegar en los direcctorios del sitio
+#---------------------------------------------------------------------
+Options All -Indexes
+
+#---------------------------------------------------------------------
+# En caso de error presentar paginas personalizadas
+#---------------------------------------------------------------------
+ErrorDocument 400 http://localhost:8080/2025/mybox/errores/400.php
+ErrorDocument 401 http://localhost:8080/2025/mybox/errores/403.php
+ErrorDocument 403 http://localhost:8080/2025/mybox/errores/403.php
+ErrorDocument 404 http://localhost:8080/2025/mybox/errores/404.php
+##ErrorDocument 500 http://localhost:8080/2025/mybox/errores/500.php
+ErrorDocument 500 http://%{HTTP_HOST}%{REQUEST_URI}/errores/500.php
+
+#---------------------------------------------------------------------
+# Evita tener acceso a los archivos con las siguientes extensiones
+#---------------------------------------------------------------------
+<FilesMatch "(\.(bak|config|inc|ini|log|sh|sql)|~)$">
+    Order allow,deny
+    Deny from all
+    Satisfy All
+</FilesMatch>
+
+#---------------------------------------------------------------------
+# RESTRICCIÓN DE ACCESO POR IP
+# Solo permite el acceso desde 3 IPs específicas del laboratorio
+# Las IPs deben ser reemplazadas por las IPs reales de las terminales
+# del laboratorio que usted esté utilizando.
+#
+# Instrucciones:
+# 1. Para obtener la IP de una terminal, ejecute: ipconfig (Windows) o ifconfig (Linux)
+# 2. Reemplace las IPs de ejemplo (192.168.1.100, 192.168.1.101, 192.168.1.102)
+#    por las IPs reales de las 3 terminales del laboratorio
+# 3. Esta directiva bloqueará el acceso desde cualquier otra IP
+#---------------------------------------------------------------------
+<RequireAll>
+    # Denegar acceso por defecto
+    Require all denied
+
+    # Permitir acceso solo desde estas 3 IPs del laboratorio
+    # IMPORTANTE: Reemplazar estas IPs con las IPs reales de su laboratorio
+    Require ip 192.168.1.100
+    Require ip 192.168.1.101
+    Require ip 192.168.1.102
+
+    # También permitir acceso desde localhost para pruebas locales
+    Require ip 127.0.0.1
+    Require ip ::1
+</RequireAll>
+
+#---------------------------------------------------------------------
+# LÍMITE DE TAMAÑO DE ARCHIVO - 20 MB MÁXIMO
+# Esta directiva limita el tamaño máximo de subida de archivos a 20 MB
+#
+# Explicación:
+# - LimitRequestBody establece el tamaño máximo en bytes que puede tener
+#   el cuerpo de una petición HTTP (incluyendo archivos subidos)
+# - 20971520 bytes = 20 MB (20 * 1024 * 1024)
+#
+# Nota: Esta configuración también debe estar configurada en php.ini:
+#   upload_max_filesize = 20M
+#   post_max_size = 20M
+#---------------------------------------------------------------------
+LimitRequestBody 20971520
+
+#---------------------------------------------------------------------
+# Puede activar las siguientes instrucciones en este archivo.
+# Estas directivas fueron escritas en el archivo apache2.conf.
+#---------------------------------------------------------------------
+#RewriteEngine on
+#RewriteCond %{HTTPS} !on
+#RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
